@@ -5,57 +5,60 @@
  * @format
  */
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import { SafeAreaView, ScrollView, StatusBar, StyleSheet, useColorScheme, FlatList} from 'react-native';
+import { Colors,} from 'react-native/Libraries/NewAppScreen';
+import styled from 'styled-components/native';
+import Rating from './components/Rating';
+import Genre from './components/Genre';
+import { getMovies } from './api';
+import * as CONSTANTS from './constants/constants';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const Container = styled.View`
+  flex: 1;
+`
+const PosterContainer = styled.View`
+  width: ${CONSTANTS.ITEM_SIZE}px;
+`
+const Poster = styled.View`
+  margin-horizontal: ${CONSTANTS.SPACING}px;
+  padding: ${CONSTANTS.SPACING * 2}px;
+  align-items: center;
+  background-color: #FFFFFF;
+  border-radius: 10px;
+`
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+const PosterImage = styled.Image`
+  width: 100%;
+  height: ${CONSTANTS.ITEM_SIZE * 1.2}px;
+  resize-mode: cover;
+  border-radius: 10px;
+  margin: 0 0 10px 0;
+`
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+const PosterTitle = styled.Text`
+  font-size: 18px;
+`
+
+const PosterDescription = styled.Text`
+  font-size: 12px;
+`
 
 function App(): React.JSX.Element {
+
+  const [movies, setMovies] = useState([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getMovies();
+      setMovies(data);
+      setLoaded(true);
+    }
+
+    fetchData();
+  }, []);
+
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
@@ -68,30 +71,7 @@ function App(): React.JSX.Element {
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
       />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
+
     </SafeAreaView>
   );
 }
