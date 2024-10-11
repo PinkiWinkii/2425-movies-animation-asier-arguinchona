@@ -51,8 +51,8 @@ const PosterTitle = styled.Text`
 
 const PosterDescription = styled.Text`
   font-size: 12px;
-    font-family: SyneMono-Regular;
-    color: #FFF;
+  font-family: SyneMono-Regular;
+  color: #FFF;
 `
 const DummyContainer = styled.View`
   width: ${CONSTANTS.SPACER_ITEM_SIZE}px;
