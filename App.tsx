@@ -11,6 +11,7 @@ import { Colors,} from 'react-native/Libraries/NewAppScreen';
 import styled from 'styled-components/native';
 import Rating from './components/Rating';
 import Genre from './components/Genre';
+import Spinner from './components/Spinner';
 import { getMovies } from './api';
 import * as CONSTANTS from './constants/constants';
 
@@ -38,22 +39,37 @@ const PosterImage = styled.Image`
 
 const PosterTitle = styled.Text`
   font-size: 18px;
+  font-family: SyneMono-Regular;
 `
 
 const PosterDescription = styled.Text`
   font-size: 12px;
+    font-family: SyneMono-Regular;
 `
+
+interface Movie {
+  key: string;
+  poster_path: string;
+  vote_average: number;
+  genres: string[];
+  originalTitle: string;
+  description: string;
+}
+
 
 function App(): React.JSX.Element {
 
-  const [movies, setMovies] = useState([]);
+  const [movies, setMovies] = useState<Movie[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [fontsLoaded, setFontsLoaded] = useState(false);
 
   useEffect(() => {
+
     const fetchData = async () => {
       const data = await getMovies();
       setMovies(data);
       setLoaded(true);
+      
     }
 
     fetchData();
@@ -65,15 +81,44 @@ function App(): React.JSX.Element {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
+  if(!loaded)
+  {
+    return <Spinner></Spinner>
+  }
+  else {
+    return (
+      <Container>
+        <StatusBar></StatusBar>
+        <FlatList
+          showsHorizontalScrollIndicator={false}
+          data={movies}
+          keyExtractor={item => item.key}
+          horizontal
+          contentContainerStyle={{
+            alignItems: 'center'
+          }}
+          renderItem={({item}) => {
+            //console.log(item);
+            
+            return(
+              <PosterContainer>
+                <Poster>
+                  <PosterImage source={{uri: item.poster_path}}></PosterImage>
+                  <PosterTitle numberOfLines={1}>{item.originalTitle}</PosterTitle>
+                  <Rating rating={item.vote_average}></Rating>
+                  <Genre genres = {item.genres}></Genre>
+                  <PosterDescription numberOfLines={5}>{item.description}</PosterDescription>
+                
+                </Poster>
+              </PosterContainer>
+            )
+          }}>
 
-    </SafeAreaView>
-  );
+          </FlatList>
+      </Container>
+    );
+  }
+
 }
 
 const styles = StyleSheet.create({

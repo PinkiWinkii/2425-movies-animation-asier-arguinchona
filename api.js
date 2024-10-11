@@ -1,11 +1,17 @@
 import { API_KEY, GENRES } from "./config";
 const API_URL = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc`
+import { movies_json } from "./moviesJson";
+
+
 
 export const getMovies = async () => {
     try{
         let response = await fetch(API_URL);
         let json = await response.json();
-        const movies = json.results.map(
+        //console.log(json);
+        const fakeJson = require('./moviesJson')
+        
+        const movies = fakeJson.results.map(
             ({
                 id,
                 original_title,
@@ -18,7 +24,7 @@ export const getMovies = async () => {
             }) => ({
                 key: String(id),
                 original_title: original_title,
-                poster_path: `https://image.tmbd.org/t/p/w500${poster_path}`,
+                poster_path: `${poster_path}`,
                 backdrop_path: `https://image.tmbd.org/t/p/w500${backdrop_path}`,
                 vote_average: vote_average,
                 description: overview,

@@ -7,25 +7,33 @@ const Container = styled.View`
     margin-vertical: 4px;
     align-items: center;
     justify-content: center;
-`
+`;
 
-interface RatingProps{
+interface RatingProps {
     rating: number;
 }
 
-const Rating: React.FC<RatingProps> = ({rating}) => {
-    const totalOfFullStars = Math.floor(rating / 2);
-    const starOutlineArray = Array(5 - totalOfFullStars).fill('star-outline');
-    const fullStarArray = Array(totalOfFullStars).fill('star');
-    const ratingStars = [...fullStarArray, ...starOutlineArray];
+const Rating: React.FC<RatingProps> = ({ rating }) => {
+    //console.log(rating);
+    
+    // Ensure rating is a number between 0 and 10
+    const normalizedRating = Math.min(Math.max(rating, 0), 10);
+    const totalOfFullStars = Math.floor(normalizedRating / 2);
+    const starOutlineCount = 5 - totalOfFullStars;
 
-    return(
+    // Create arrays for full stars and outlined stars
+    const ratingStars = [
+        ...Array(totalOfFullStars).fill('star'), // Full stars
+        ...Array(starOutlineCount).fill('star-outline'), // Outline stars
+    ];
+
+    return (
         <Container>
-            {ratingStars.map((icon: any, index: any) => {
-                return <MaterialCommunityIcons key={index} name={icon} size={16} color='gray'></MaterialCommunityIcons>
-            })}
+            {ratingStars.map((icon, index) => (
+                <MaterialCommunityIcons key={index} name={icon} size={16} color='gray' />
+            ))}
         </Container>
-    )
+    );
 }
 
 export default Rating;
