@@ -14,7 +14,8 @@ import Genre from './components/Genre';
 import Spinner from './components/Spinner';
 import { getMovies } from './api';
 import * as CONSTANTS from './constants/constants';
-import Animated, { useSharedValue, useAnimatedStyle, interpolate } from "react-native-reanimated";
+import {Animated} from 'react-native';
+import { useSharedValue, useAnimatedStyle, interpolate, useAnimatedScrollHandler } from "react-native-reanimated";
 
 const Container = styled.View`
   flex: 1;
@@ -47,13 +48,17 @@ const PosterDescription = styled.Text`
   font-size: 12px;
     font-family: SyneMono-Regular;
 `
+const DummyContainer = styled.View`
+  width: ${CONSTANTS.SPACER_ITEM_SIZE}px;
+`
+
 
 interface Movie {
   key: string;
   poster_path: string;
   vote_average: number;
   genres: string[];
-  originalTitle: string;
+  original_title: string;
   description: string;
 }
 
@@ -64,15 +69,14 @@ function App(): React.JSX.Element {
   const [loaded, setLoaded] = useState(false);
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
-  const scroll_x = useSharedValue(0);
-  console.log("scroll_x.value:", scroll_x.value);
-  
+  const scroll_x = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
 
     const fetchData = async () => {
       const data = await getMovies();
-      setMovies(data);
+      //setMovies(data);
+      setMovies([{key: 'left-spacer'}, ...data, {key: 'right-spacer'}]);
       setLoaded(true);
       
     }
@@ -95,9 +99,10 @@ function App(): React.JSX.Element {
       <Container>
         <StatusBar></StatusBar>
         <Animated.FlatList
-          onScroll={(event) => {
-            scroll_x.value = event.nativeEvent.contentOffset.x;  // update shared value with scroll position
-        }}
+        scrollEventThrottle={16}
+          onScroll={Animated.event([{nativeEvent: {contentOffset: {x: scroll_x}}}],
+                  {useNativeDriver: true}
+          )}
           snapToInterval={CONSTANTS.ITEM_SIZE}
           decelerationRate={0}
           showsHorizontalScrollIndicator={false}
@@ -107,21 +112,37 @@ function App(): React.JSX.Element {
           contentContainerStyle={{
             alignItems: 'center'
           }}
-          renderItem={({item}) => {
-            //console.log(item);
+          renderItem={({item, index}) => {
+
+            const inputRange = [(index - 2) * CONSTANTS.ITEM_SIZE,
+                                (index - 1) * CONSTANTS.ITEM_SIZE,
+                                index * CONSTANTS.ITEM_SIZE]
+            const outputRange = [0, -50, 0];
+
+            const translateYMovie = scroll_x.interpolate({inputRange, outputRange});
             
-            return(
-              <PosterContainer>
-                <Poster>
-                  <PosterImage source={{uri: item.poster_path}}></PosterImage>
-                  <PosterTitle numberOfLines={1}>{item.originalTitle}</PosterTitle>
-                  <Rating rating={item.vote_average}></Rating>
-                  <Genre genres = {item.genres}></Genre>
-                  <PosterDescription numberOfLines={5}>{item.description}</PosterDescription>
-                
-                </Poster>
-              </PosterContainer>
-            )
+            console.log("scroll_x.value:", scroll_x);
+
+            if(!item.original_title)
+            {
+              console.log("NO TIENE ORIGINAL TITLE");
+              
+              return <DummyContainer></DummyContainer>
+            }
+            else{
+              return(
+                <PosterContainer>
+                  <Poster as={Animated.View} style={{transform: [{translateY: translateYMovie}]}}>
+                    <PosterImage source={{uri: item.poster_path}}></PosterImage>
+                    <PosterTitle numberOfLines={1}>{item.original_title}</PosterTitle>
+                    <Rating rating={item.vote_average}></Rating>
+                    <Genre genres = {item.genres}></Genre>
+                    <PosterDescription numberOfLines={5}>{item.description}</PosterDescription>
+                  
+                  </Poster>
+                </PosterContainer>
+              )
+            }
           }}>
 
           </Animated.FlatList>
