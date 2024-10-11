@@ -25,7 +25,7 @@ export const getMovies = async () => {
                 key: String(id),
                 original_title: original_title,
                 poster_path: `${poster_path}`,
-                backdrop_path: `https://image.tmbd.org/t/p/w500${backdrop_path}`,
+                backdrop_path: `${backdrop_path}`,
                 vote_average: vote_average,
                 description: overview,
                 releaseDate: release_date,
