@@ -90,6 +90,8 @@ function App(): React.JSX.Element {
       <Container>
         <StatusBar></StatusBar>
         <FlatList
+          snapToInterval={CONSTANTS.ITEM_SIZE}
+          decelerationRate={0}
           showsHorizontalScrollIndicator={false}
           data={movies}
           keyExtractor={item => item.key}
