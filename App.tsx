@@ -5,7 +5,7 @@
  * @format
  */
 
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import { SafeAreaView, ScrollView, StatusBar, StyleSheet, useColorScheme, FlatList} from 'react-native';
 import { Colors,} from 'react-native/Libraries/NewAppScreen';
 import styled from 'styled-components/native';
@@ -14,6 +14,7 @@ import Genre from './components/Genre';
 import Spinner from './components/Spinner';
 import { getMovies } from './api';
 import * as CONSTANTS from './constants/constants';
+import Animated, { useSharedValue, useAnimatedStyle, interpolate } from "react-native-reanimated";
 
 const Container = styled.View`
   flex: 1;
@@ -63,6 +64,10 @@ function App(): React.JSX.Element {
   const [loaded, setLoaded] = useState(false);
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
+  const scroll_x = useSharedValue(0);
+  console.log("scroll_x.value:", scroll_x.value);
+  
+
   useEffect(() => {
 
     const fetchData = async () => {
@@ -89,7 +94,10 @@ function App(): React.JSX.Element {
     return (
       <Container>
         <StatusBar></StatusBar>
-        <FlatList
+        <Animated.FlatList
+          onScroll={(event) => {
+            scroll_x.value = event.nativeEvent.contentOffset.x;  // update shared value with scroll position
+        }}
           snapToInterval={CONSTANTS.ITEM_SIZE}
           decelerationRate={0}
           showsHorizontalScrollIndicator={false}
@@ -116,7 +124,7 @@ function App(): React.JSX.Element {
             )
           }}>
 
-          </FlatList>
+          </Animated.FlatList>
       </Container>
     );
   }
